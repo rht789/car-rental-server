@@ -102,12 +102,15 @@ async function run() {
     });
 
     // GET - Get bookings by user email (Private)
-    app.get("/bookings/:email", async (req, res) => {
-      const email = req.params.email;
-      const query = { userEmail: email };
-      const bookings = await bookingsCollection.find(query).toArray();
-      res.send(bookings);
-    });
+   app.get("/bookings", async (req, res) => {
+     const email = req.query.email;
+     const query = {};
+     if (email) {
+       query.providerEmail = email;
+     }
+     const bookings = await bookingsCollection.find(query).toArray();
+     res.send(bookings);
+   });
     
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
