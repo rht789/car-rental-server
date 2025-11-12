@@ -66,7 +66,7 @@ async function run() {
     app.get("/cars", async (req, res) => {
       const email = req.query.email;
       const query = {};
-      if(email){
+      if (email) {
         query.providerEmail = email;
       }
       const cars = await carsCollection.find(query).toArray();
@@ -80,6 +80,18 @@ async function run() {
       const filter = { _id: new ObjectId(id) };
       const updateDoc = {
         $set: updatedCar,
+      };
+      const result = await carsCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    // PATCH - Update car status (Private)
+    app.patch("/cars/:id", async (req, res) => {
+      const id = req.params.id;
+      const { status } = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: { status },
       };
       const result = await carsCollection.updateOne(filter, updateDoc);
       res.send(result);
@@ -102,16 +114,18 @@ async function run() {
     });
 
     // GET - Get bookings by user email (Private)
-   app.get("/bookings", async (req, res) => {
-     const email = req.query.email;
-     const query = {};
-     if (email) {
-       query.providerEmail = email;
-     }
-     const bookings = await bookingsCollection.find(query).toArray();
-     res.send(bookings);
-   });
-    
+    app.get("/bookings", async (req, res) => {
+      const renterId = req.query.renterId;
+
+      const query = {};
+
+      if (renterId) {
+        query.renterId = renterId;
+      }
+      const bookings = await bookingsCollection.find(query).toArray();
+      res.send(bookings);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
